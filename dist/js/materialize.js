@@ -1,5 +1,5 @@
 /*!
- * Materialize v0.97.7 (http://materializecss.com)
+ * Materialize vundefined (http://materializecss.com)
  * Copyright 2014-2015 Materialize
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */
@@ -2999,7 +2999,8 @@ $(document).ready(function(){
     $.fn.autocomplete = function (options) {
       // Defaults
       var defaults = {
-        data: {}
+        data: {},
+        rewrite: false
       };
 
       options = $.extend(defaults, options);
@@ -3013,6 +3014,11 @@ $(document).ready(function(){
         if (!$.isEmptyObject(data)) {
           // Create autocomplete element
           var $autocomplete = $('<ul class="autocomplete-content dropdown-content"></ul>');
+
+          // Remove autocomplete list to add new one
+          if (options.rewrite) {
+            $input.nextAll('ul.autocomplete-content').remove();
+          }
 
           // Append autocomplete element
           if ($inputDiv.length) {
