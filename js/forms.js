@@ -279,22 +279,149 @@
      * Auto complete plugin  *
      *************************/
     $.fn.autocomplete = function (options) {
-      // Defaults
       var defaults = {
         data: {},
-        rewrite: false
-      };
+        rewrite: false,
+        maxElementsAmount: null,
+        onSelect: null
+      },
+      currentLi = 0,
+      autocompleteOption = null,
+      currentAutocompleteVal = '';
 
       options = $.extend(defaults, options);
 
-      return this.each(function() {
-        var $input = $(this);
-        var data = options.data,
-            $inputDiv = $input.closest('.input-field'); // Div to append on
+      // Set input value
+      function setInputValue(ulElement, inputElement) {
+        ulElement.on('click', 'li', function () {
+          inputElement.val($(this).text().trim());
+          inputElement.trigger('change');
+          ulElement.empty();
+          if( typeof defaults.onSelect === 'function' ){
+            defaults.onSelect(this);
+          }
+        });
+      }
 
-        // Check if data isn't empty
-        if (!$.isEmptyObject(data)) {
-          // Create autocomplete element
+      // highlight elements
+      function highlight(string, $el) {
+        var img = $el.find('img'),
+        matchStart = $el.text().toLowerCase().indexOf(string.toLowerCase()),
+        matchEnd = matchStart + string.length - 1,
+        beforeMatch = $el.text().slice(0, matchStart),
+        matchText = $el.text().slice(matchStart, matchEnd + 1),
+        afterMatch = $el.text().slice(matchEnd + 1);
+        $el.html("<span>" + beforeMatch + "<span class='highlight'>" + matchText + "</span>" + afterMatch + "</span>");
+        if (img.length) {
+          $el.prepend(img);
+        }
+      }
+
+      // function on keyUp
+      function keyUp(e, data, $input, $autocomplete) {
+
+        // select element on Enter
+        if (e.which === 13) {
+          $autocomplete.find('li')[currentLi].click();
+          return;
+        }
+
+        // hide list on ESC button
+        if (e.which === 27) {
+          $input.blur();
+        }
+
+        // prevent refreshing list on pressing ctrl, shif, alt, arrow, f1-f12, etc
+        // helpful if we selected something using arrow and we press ctrl for example
+        if(
+        [9, 16, 17, 18, 19, 20, 33, 34, 35, 36, 37, 38, 39, 40, 45, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123].indexOf(e.which) < 0
+        ){
+          highlightElements(data, $input, $autocomplete);
+        }
+      }
+
+      // function to displaying elements
+      function highlightElements(data, $input, $autocomplete){
+        var val = $input.val().toLowerCase();
+
+        // Check if the input isn't empty and isn't equal to the old option
+        if (val !== '' && currentAutocompleteVal !== val) {
+          var maxElementsAmount = options.maxElementsAmount;
+          $autocomplete.empty();
+
+          for (var key in data) {
+
+            if (maxElementsAmount === 0) {
+              break;
+            }
+
+            if (data.hasOwnProperty(key) &&
+            key.toLowerCase().indexOf(val) !== -1 &&
+            key.toLowerCase() !== val) {
+              if (maxElementsAmount !== null) {
+                maxElementsAmount--;
+              }
+
+              autocompleteOption = $('<li></li>');
+              if (!!data[key]) {
+                autocompleteOption.append('<img src="' + data[key] + '" class="right circle"><span>' + key + '</span>');
+              } else {
+                autocompleteOption.append('<span>' + key + '</span>');
+              }
+              $autocomplete.append(autocompleteOption);
+
+              highlight(val, autocompleteOption);
+            }
+          }
+
+          currentAutocompleteVal = val;
+          autocompleteOption = $autocomplete.find('li');
+          currentLi = 0;
+          $(autocompleteOption[currentLi]).addClass('active');
+        }
+      }
+
+      // arrow usage - on key down
+      function arrowUsage(e, $autocomplete) {
+        var keyCode = e.which;
+        // Capture up and down key
+        if ( keyCode === 38 || keyCode === 40 ) {
+          e.preventDefault();
+
+          if (currentLi > 0 && keyCode === 38) {
+            currentLi--;
+          }
+
+          if (currentLi < (autocompleteOption.length - 1) && keyCode === 40) {
+            currentLi++;
+          }
+
+          $autocomplete.find('.active').removeClass('active');
+          $(autocompleteOption[currentLi]).addClass('active');
+        }
+      }
+
+      // reset current element position
+      function resetCurrentElement($autocomplete) {
+        currentLi = 0;
+        $autocomplete.find('.active').removeClass('active');
+        $(autocompleteOption[currentLi]).addClass('active');
+      }
+
+
+      // initialization for each element
+      return this.each(function () {
+        var $input = $(this),
+        data = options.data,
+        $inputDiv = $input.closest('.input-field');
+
+        // remove list if it exist
+        if($inputDiv.find('.autocomplete-content').length !== 0){
+          $inputDiv.find('.autocomplete-content').remove();
+        }
+
+        // Check if data isn't empty and append autocomplete element if doesn't exist yet - run only once
+        if( !$.isEmptyObject(data) && $inputDiv.find('.autocomplete-content').length === 0 ) {
           var $autocomplete = $('<ul class="autocomplete-content dropdown-content"></ul>');
 
           // Remove autocomplete list to add new one
@@ -309,61 +436,32 @@
             $input.after($autocomplete);
           }
 
-          var highlight = function(string, $el) {
-            var img = $el.find('img');
-            var matchStart = $el.text().toLowerCase().indexOf("" + string.toLowerCase() + ""),
-                matchEnd = matchStart + string.length - 1,
-                beforeMatch = $el.text().slice(0, matchStart),
-                matchText = $el.text().slice(matchStart, matchEnd + 1),
-                afterMatch = $el.text().slice(matchEnd + 1);
-            $el.html("<span>" + beforeMatch + "<span class='highlight'>" + matchText + "</span>" + afterMatch + "</span>");
-            if (img.length) {
-              $el.prepend(img);
-            }
-          };
+          // trigger list displaying
+          highlightElements(data, $input, $autocomplete);
 
-          // Perform search
+          // Perform key button
           $input.on('keyup', function (e) {
-            // Capture Enter
-            if (e.which === 13) {
-              $autocomplete.find('li').first().click();
-              return;
-            }
-
-            var val = $input.val().toLowerCase();
-            $autocomplete.empty();
-
-            // Check if the input isn't empty
-            if (val !== '') {
-              for(var key in data) {
-                if (data.hasOwnProperty(key) &&
-                    key.toLowerCase().indexOf(val) !== -1 &&
-                    key.toLowerCase() !== val) {
-                  var autocompleteOption = $('<li></li>');
-                  if(!!data[key]) {
-                    autocompleteOption.append('<img src="'+ data[key] +'" class="right circle"><span>'+ key +'</span>');
-                  } else {
-                    autocompleteOption.append('<span>'+ key +'</span>');
-                  }
-                  $autocomplete.append(autocompleteOption);
-
-                  highlight(val, autocompleteOption);
-                }
-              }
-            }
+            keyUp(e, data, $input, $autocomplete);
           });
 
-          // Set input value
-          $autocomplete.on('click', 'li', function () {
-            $input.val($(this).text().trim());
-            $input.trigger('change');
-            $autocomplete.empty();
+          // arrow key usage
+          $input.on('keydown', function (e) {
+            arrowUsage(e, $autocomplete);
           });
+
+          // reset selected element on the list
+          $input.blur(function () {
+            resetCurrentElement($autocomplete);
+          });
+
+          // updating input value
+          setInputValue($autocomplete, $input);
         }
       });
     };
 
-  }); // End of $(document).ready
+  });
+  // End of autocomplete function
 
   /*******************
    *  Select Plugin  *
@@ -420,9 +518,9 @@
 
           // Check for multiple type.
           if (type === 'multiple') {
-            options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
+            options.append($('<li class="' + disabledClass + '"><img alt="" src="' + icon_url + '"' + classString + '><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
           } else {
-            options.append($('<li class="' + disabledClass + optgroupClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
+            options.append($('<li class="' + disabledClass + optgroupClass + '"><img alt="" src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
           }
           return true;
         }

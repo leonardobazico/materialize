@@ -142,13 +142,17 @@
     $('.carousel').carousel();
     $('.slider').slider({full_width: true});
     $('.parallax').parallax();
-    $('.modal-trigger').leanModal();
+    $('.modal').modal();
     $('.scrollspy').scrollSpy();
     $('.button-collapse').sideNav({'edge': 'left'});
     $('.datepicker').pickadate({selectYears: 20});
     $('select').not('.disabled').material_select();
     $('input.autocomplete').autocomplete({
-      data: {"Apple": null, "Microsoft": null, "Google": 'http://placehold.it/250x250'}
+      data: {"Apple": null, "Microsoft": null, "Micro Center": null, "Micro Mobility": null, "Micro Systems": null, "Google": 'http://placehold.it/250x250'},
+      maxElementsAmount: 3,
+      onSelect: function(selectedElement){
+        console.log('Selected element is:', $(selectedElement).text());
+      }
     });
 
     $('.chips-initial').material_chip({

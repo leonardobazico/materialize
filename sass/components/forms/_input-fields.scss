@@ -123,6 +123,18 @@ textarea.materialize-textarea {
 
 // Styling for input field wrapper
 .input-field {
+  // Inline styles
+  &.inline {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+
+    input,
+    .select-dropdown {
+      margin-bottom: 1rem;
+    }
+  }
+
   // Gutter spacing
   &.col {
     label {
@@ -142,6 +154,7 @@ textarea.materialize-textarea {
     color: $input-border-color;
     position: absolute;
     top: 0.8rem;
+    left: 0;
     font-size: 1rem;
     cursor: text;
     transition: .2s ease-out;
@@ -257,9 +270,13 @@ textarea {
 /* Autocomplete */
 .autocomplete-content {
   margin-top: -15px;
-  display: block;
+  display: none;
   opacity: 1;
-  position: static;
+  position: absolute;
+
+  &:hover {
+    display: block;
+  }
 
   li {
     .highlight { color: #444; }
@@ -270,4 +287,8 @@ textarea {
       margin: 5px 15px;
     }
   }
+}
+
+.autocomplete:focus ~ .autocomplete-content {
+  display: block;
 }

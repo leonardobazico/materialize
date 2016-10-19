@@ -154,6 +154,15 @@
                 <label for="email" data-error="wrong" data-success="right">Email</label>
               </div>
             </div>
+            <div class="row">
+              <div class="col s12">
+                This is an inline input field:
+                <div class="input-field inline">
+                  <input id="email" type="email" class="validate">
+                  <label for="email" data-error="wrong" data-success="right">Email</label>
+                </div>
+              </div>
+            </div>
           </form>
         </div>
         <pre><code class="language-markup">
@@ -185,6 +194,15 @@
         &lt;div class="input-field col s12">
           &lt;input id="email" type="email" class="validate">
           &lt;label for="email">Email&lt;/label>
+        &lt;/div>
+      &lt;/div>
+      &lt;div class="row">
+        &lt;div class="col s12">
+          This is an inline input field:
+          &lt;div class="input-field inline">
+            &lt;input id="email" type="email" class="validate">
+            &lt;label for="email" data-error="wrong" data-success="right">Email&lt;/label>
+          &lt;/div>
         &lt;/div>
       &lt;/div>
     &lt;/form>
@@ -940,8 +958,8 @@
       &lt;div class="row">
         &lt;div class="input-field col s12">
           &lt;i class="material-icons prefix">textsms&lt;/i>
-          &lt;input type="text" id="autocomplete">
-          &lt;label for="autocomplete">Autocomplete&lt;/label>
+          &lt;input type="text" id="autocomplete-input" class="autocomplete">
+          &lt;label for="autocomplete-input">Autocomplete&lt;/label>
         &lt;/div>
       &lt;/div>
     &lt;/div>
@@ -949,15 +967,29 @@
         </code></pre>
 
         <h4>Initialization</h4>
-        <p>The data is a json object where the key is the matching string and the value is an optional image url.</p>
+        <p>The data is a JavaScript object where the key is the matching string and the value is an optional image url.</p>
+        <p>There is also additional option <code class="language-markup">maxElementsAmount</code>. You can set here, how many elements will display in an auto complete list. If you skip this option you will see all available and matching options.</p>
+        <p>You can set also callback function on select event in <code class="language-markup">onSelect</code> parameter.</p>
+        <p>If you want to update data after initialization - for instance for AJAX request - just run initialization on particular element one more time. It will override current data.</p>
         <pre><code class="language-javascript">
   $('input.autocomplete').autocomplete({
     data: {
       "Apple": null,
       "Microsoft": null,
+      "Micro Center": null,
+      "Micro Mobility": null,
+      "Micro Systems": null,
       "Google": 'http://placehold.it/250x250'
     },
+<<<<<<< HEAD
     rewrite: false
+=======
+    // optional parameters below
+    maxElementsAmount: 3,
+    onSelect: function(selectedElement){
+      console.log('Selected element is:', $(selectedElement).text());
+    }
+>>>>>>> e84c1e6e28ced9456143fd9c243d846032d5bec4
   });
         </code></pre>
       </div>
