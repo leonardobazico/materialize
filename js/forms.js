@@ -440,11 +440,13 @@
           highlightElements(data, $input, $autocomplete);
 
           // Perform key button
+          $input.off('keyup');
           $input.on('keyup', function (e) {
             keyUp(e, data, $input, $autocomplete);
           });
 
           // arrow key usage
+          $input.off('keydown');
           $input.on('keydown', function (e) {
             arrowUsage(e, $autocomplete);
           });
