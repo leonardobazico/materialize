@@ -281,7 +281,6 @@
     $.fn.autocomplete = function (options) {
       var defaults = {
         data: {},
-        rewrite: false,
         maxElementsAmount: null,
         onSelect: null
       },
@@ -423,11 +422,6 @@
         // Check if data isn't empty and append autocomplete element if doesn't exist yet - run only once
         if( !$.isEmptyObject(data) && $inputDiv.find('.autocomplete-content').length === 0 ) {
           var $autocomplete = $('<ul class="autocomplete-content dropdown-content"></ul>');
-
-          // Remove autocomplete list to add new one
-          if (options.rewrite) {
-            $input.nextAll('ul.autocomplete-content').remove();
-          }
 
           // Append autocomplete element
           if ($inputDiv.length) {
