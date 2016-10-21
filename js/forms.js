@@ -404,7 +404,9 @@
       function resetCurrentElement($autocomplete) {
         currentLi = 0;
         $autocomplete.find('.active').removeClass('active');
-        $(autocompleteOption[currentLi]).addClass('active');
+        if (autocompleteOption && autocompleteOption[currentLi]) {
+          $(autocompleteOption[currentLi]).addClass('active');
+        }
       }
 
 
